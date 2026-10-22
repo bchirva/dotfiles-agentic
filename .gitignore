@@ -1,0 +1,13 @@
+dot-config/pi-agent/bin
+dot-config/pi-agent/npm
+dot-config/pi-agent/sessions
+dot-config/pi-agent/auth.json
+dot-config/pi-agent/models-store.json
+
+dot-config/opencode/node_modules
+dot-config/opencode/.gitignore
+dot-config/opencode/bun.lock
+dot-config/opencode/package-lock.json
+dot-config/opencode/service.json
+
+.examples/
