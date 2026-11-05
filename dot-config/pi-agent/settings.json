@@ -1,9 +1,13 @@
 {
-  "llamaServerUrl": "http://127.0.0.1:12741",
-  "lastChangelogVersion": "0.84.1",
-  "packages": [
-    "npm:pi-llama-cpp"
+  "lastChangelogVersion": "1.5.0",
+  "defaultProvider": "openai",
+  "theme": "Quartz",
+  "extensions": [
+    "extensions/llama.cpp"
   ],
-  "defaultProvider": "llama-server",
-  "theme": "Quartz"
+  "llamaCpp": {
+    "serverUrl": "http://127.0.0.1:12741"
+  },
+  "deviceId": "adbb17bd-40f9-4374-a57b-0282b63f5ff5",
+  "defaultModel": "gpt-6.1-sol"
 }
