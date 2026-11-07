@@ -2,5 +2,11 @@
   "$schema": "https://opencode.ai/v2/cli.json",
   "theme": {
     "name": "quartz"
-  }
+  },
+  "attention": {
+    "notifications": false
+  },
+  "plugins": [
+    "./plugins/agent-notify"
+  ]
 }

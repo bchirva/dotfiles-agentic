@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+
+title=$1
+body=$2
+
+terminal_focused() {
+    [ -n "$WINDOWID" ] || return 1
+    active_window=$(xdotool getactivewindow 2>/dev/null) || return 1
+    [ "$active_window" = "$WINDOWID" ]
+}
+
+tmux_pane_focused() {
+    [ -n "$TMUX_PANE" ] || return 0
+    state=$(tmux display-message -p -t "$TMUX_PANE" '#{pane_active}:#{window_active}' 2>/dev/null) || return 1
+    [ "$state" = '1:1' ]
+}
+
+if tmux_pane_focused && terminal_focused; then
+    exit 0
+fi
+
+notify-send -i utilities-terminal "$title" "$body"

@@ -3,7 +3,8 @@
   "defaultProvider": "openai",
   "theme": "Quartz",
   "extensions": [
-    "extensions/llama.cpp"
+    "extensions/llama.cpp",
+    "extensions/agent-notify"
   ],
   "llamaCpp": {
     "serverUrl": "http://127.0.0.1:12741"
