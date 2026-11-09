@@ -5,6 +5,7 @@
   "extensions": [
     "extensions/llama.cpp",
     "extensions/searxng",
+    "extensions/webfetch",
     "extensions/agent-notify"
   ],
   "llamaCpp": {
