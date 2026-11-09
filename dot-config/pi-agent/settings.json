@@ -4,10 +4,14 @@
   "theme": "Quartz",
   "extensions": [
     "extensions/llama.cpp",
+    "extensions/searxng",
     "extensions/agent-notify"
   ],
   "llamaCpp": {
     "serverUrl": "http://127.0.0.1:12741"
+  },
+  "searxng": {
+    "serverUrl": "http://searxng.localhost"
   },
   "deviceId": "adbb17bd-40f9-4374-a57b-0282b63f5ff5",
   "defaultModel": "gpt-6.1-sol"

@@ -6,6 +6,12 @@
       "options": {
         "serverUrl": "http://127.0.0.1:12741"
       }
+    },
+    {
+      "package": "file:{env:HOME}/.config/opencode/plugins/searxng",
+      "options": {
+        "serverUrl": "http://searxng.localhost"
+      }
     }
   ]
 }
