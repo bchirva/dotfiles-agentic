@@ -5,8 +5,9 @@ import {
   modelRequestError,
   releaseTime,
   requireServerUrl,
+  resolveAgentClientPath,
   toOpenCodeModel,
-} from "../src/index.js";
+} from "../index.js";
 
 test("requires an explicit OpenCode plugin serverUrl", () => {
   assert.equal(
@@ -38,5 +39,12 @@ test("keeps the shared unavailable-server message in model request errors", () =
       new Error("llama.cpp: server not available at http://127.0.0.1:12741"),
     ),
     "Cannot use llama.cpp model 'qwen': llama.cpp: server not available at http://127.0.0.1:12741",
+  );
+});
+
+test("loads shared clients from XDG_DATA_HOME", () => {
+  assert.equal(
+    resolveAgentClientPath("llama.cpp", "/var/lib/user-data"),
+    "/var/lib/user-data/agent-clients/llama.cpp/index.ts",
   );
 });

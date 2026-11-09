@@ -4,6 +4,7 @@ import test from "node:test";
 import llamaCppExtension, {
   isServerUnavailable,
   readSettings,
+  resolveAgentClientPath,
   toProviderModel,
 } from "../index.js";
 
@@ -30,6 +31,13 @@ test("recognizes the shared unavailable-server error for startup notification", 
     true,
   );
   assert.equal(isServerUnavailable(new Error("fetch failed")), false);
+});
+
+test("loads shared clients from XDG_DATA_HOME", () => {
+  assert.equal(
+    resolveAgentClientPath("llama.cpp", "/var/lib/user-data"),
+    "/var/lib/user-data/agent-clients/llama.cpp/index.ts",
+  );
 });
 
 test("reports an unavailable server during startup without throwing", async () => {

@@ -1,16 +1,27 @@
 import {Plugin, WebSearch} from "@opencode/plugin";
 import {realpathSync} from "node:fs";
-import {dirname, resolve} from "node:path";
-import {fileURLToPath, pathToFileURL} from "node:url";
-import type {
-  SearXNGClient,
-  SearXNGResult,
-} from "../../../../../dot-local/share/agent-clients/searxng/index";
+import {homedir} from "node:os";
+import {resolve} from "node:path";
+import {pathToFileURL} from "node:url";
 
 const PROVIDER_ID = "searxng";
 
 interface Options {
   serverUrl?: unknown;
+}
+
+interface SearXNGResult {
+  url: string;
+  title?: string;
+  content?: string;
+}
+
+interface SearXNGClient {
+  search(query: string, signal?: AbortSignal): Promise<SearXNGResult[]>;
+}
+
+interface SearXNGModule {
+  SearXNGClient: new (options: {serverUrl: string}) => SearXNGClient;
 }
 
 export default Plugin.define({
@@ -38,13 +49,13 @@ function requireServerUrl(options: Options): string {
   return options.serverUrl;
 }
 
-async function loadClient(): Promise<typeof import("../../../../../dot-local/share/agent-clients/searxng/index")> {
-  const pluginDirectory = dirname(realpathSync(fileURLToPath(import.meta.url)));
-  const clientPath = resolve(
-    pluginDirectory,
-    "../../../../../dot-local/share/agent-clients/searxng/index.ts",
-  );
-  return import(pathToFileURL(clientPath).href);
+async function loadClient(): Promise<SearXNGModule> {
+  return import(pathToFileURL(realpathSync(resolveAgentClientPath("searxng"))).href);
+}
+
+function resolveAgentClientPath(client: string, xdgDataHome = process.env.XDG_DATA_HOME): string {
+  const dataHome = xdgDataHome || resolve(homedir(), ".local", "share");
+  return resolve(dataHome, "agent-clients", client, "index.ts");
 }
 
 function toOpenCodeResults(results: readonly SearXNGResult[]): WebSearch.Result[] {
@@ -56,4 +67,4 @@ function toOpenCodeResults(results: readonly SearXNGResult[]): WebSearch.Result[
   }));
 }
 
-export {PROVIDER_ID, requireServerUrl, toOpenCodeResults};
+export {PROVIDER_ID, requireServerUrl, resolveAgentClientPath, toOpenCodeResults};

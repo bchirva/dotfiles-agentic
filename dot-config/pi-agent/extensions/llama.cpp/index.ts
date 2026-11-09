@@ -6,18 +6,35 @@ import type {
   ProviderModelConfig,
 } from "@earendil-works/pi-coding-agent";
 import {realpathSync} from "node:fs";
-import {dirname, resolve} from "node:path";
-import {fileURLToPath, pathToFileURL} from "node:url";
-import type {
-  LlamaCppClient,
-  LlamaModel,
-  ModelInfo,
-} from "../../../../dot-local/share/agent-clients/llama.cpp/index";
+import {homedir} from "node:os";
+import {resolve} from "node:path";
+import {pathToFileURL} from "node:url";
 
 const PROVIDER_ID = "llama.cpp";
 
 interface LlamaCppSettings {
   serverUrl?: unknown;
+}
+
+interface LlamaModel {
+  id: string;
+  aliases?: string[];
+  architecture?: {input_modalities?: string[]};
+}
+
+interface ModelInfo {
+  contextWindow?: number;
+}
+
+interface LlamaCppClient {
+  apiUrl: string;
+  ensureModelReady(modelID: string): Promise<void>;
+  getModelInfo(modelID: string): Promise<ModelInfo>;
+  listModels(): Promise<LlamaModel[]>;
+}
+
+interface LlamaCppModule {
+  LlamaCppClient: new (options: {serverUrl: string}) => LlamaCppClient;
 }
 
 export default async function (pi: ExtensionAPI) {
@@ -86,13 +103,13 @@ function message(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-async function loadClient(): Promise<typeof import("../../../../dot-local/share/agent-clients/llama.cpp/index")> {
-  const pluginDirectory = dirname(realpathSync(fileURLToPath(import.meta.url)));
-  const clientPath = resolve(
-    pluginDirectory,
-    "../../../../dot-local/share/agent-clients/llama.cpp/index.ts",
-  );
-  return import(pathToFileURL(clientPath).href);
+async function loadClient(): Promise<LlamaCppModule> {
+  return import(pathToFileURL(realpathSync(resolveAgentClientPath("llama.cpp"))).href);
+}
+
+function resolveAgentClientPath(client: string, xdgDataHome = process.env.XDG_DATA_HOME): string {
+  const dataHome = xdgDataHome || resolve(homedir(), ".local", "share");
+  return resolve(dataHome, "agent-clients", client, "index.ts");
 }
 
 async function prepareModel(
@@ -143,4 +160,10 @@ function toProviderModel(
   };
 }
 
-export {PROVIDER_ID, isServerUnavailable, readSettings, toProviderModel};
+export {
+  PROVIDER_ID,
+  isServerUnavailable,
+  readSettings,
+  resolveAgentClientPath,
+  toProviderModel,
+};

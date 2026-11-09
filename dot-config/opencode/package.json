@@ -1,8 +1,7 @@
 {
-  "name": "local-opencode-searxng",
+  "name": "local-opencode-plugins",
   "private": true,
   "type": "module",
-  "exports": "./src/index.ts",
   "dependencies": {
     "@opencode/plugin": "^2.0.32"
   },

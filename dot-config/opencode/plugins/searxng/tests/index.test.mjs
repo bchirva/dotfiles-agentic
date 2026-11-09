@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {PROVIDER_ID, requireServerUrl, toOpenCodeResults} from "../src/index.js";
+import {
+  PROVIDER_ID,
+  requireServerUrl,
+  resolveAgentClientPath,
+  toOpenCodeResults,
+} from "../index.js";
 
 test("uses a stable SearXNG websearch provider ID", () => {
   assert.equal(PROVIDER_ID, "searxng");
@@ -26,4 +31,11 @@ test("projects SearXNG results into OpenCode websearch results", () => {
     content: "An AI coding agent",
     time: {},
   }]);
+});
+
+test("loads shared clients from XDG_DATA_HOME", () => {
+  assert.equal(
+    resolveAgentClientPath("searxng", "/var/lib/user-data"),
+    "/var/lib/user-data/agent-clients/searxng/index.ts",
+  );
 });

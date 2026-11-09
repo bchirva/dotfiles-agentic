@@ -1,12 +1,8 @@
 import {Model, Plugin, Provider} from "@opencode/plugin";
 import {realpathSync} from "node:fs";
-import {dirname, resolve} from "node:path";
-import {fileURLToPath, pathToFileURL} from "node:url";
-import type {
-  LlamaCppClient,
-  LlamaModel,
-  ModelInfo,
-} from "../../../../../dot-local/share/agent-clients/llama.cpp/index";
+import {homedir} from "node:os";
+import {resolve} from "node:path";
+import {pathToFileURL} from "node:url";
 
 const PROVIDER_ID = "llama.cpp";
 const PROVIDER_PACKAGE = "@opencode/ai/providers/openai-compatible";
@@ -19,6 +15,28 @@ interface Options {
 interface ProviderSource {
   info: Provider.Info;
   models: readonly Model.Info[];
+}
+
+interface LlamaModel {
+  id: string;
+  created?: number;
+  aliases?: string[];
+  architecture?: {input_modalities?: string[]};
+}
+
+interface ModelInfo {
+  contextWindow?: number;
+}
+
+interface LlamaCppClient {
+  apiUrl: string;
+  ensureModelReady(modelID: string): Promise<void>;
+  getModelInfo(modelID: string): Promise<ModelInfo>;
+  listModels(): Promise<LlamaModel[]>;
+}
+
+interface LlamaCppModule {
+  LlamaCppClient: new (options: {serverUrl: string}) => LlamaCppClient;
 }
 
 export default Plugin.define({
@@ -69,13 +87,13 @@ function requireServerUrl(options: Options): string {
   return options.serverUrl;
 }
 
-async function loadClient(): Promise<typeof import("../../../../../dot-local/share/agent-clients/llama.cpp/index")> {
-  const pluginDirectory = dirname(realpathSync(fileURLToPath(import.meta.url)));
-  const clientPath = resolve(
-    pluginDirectory,
-    "../../../../../dot-local/share/agent-clients/llama.cpp/index.ts",
-  );
-  return import(pathToFileURL(clientPath).href);
+async function loadClient(): Promise<LlamaCppModule> {
+  return import(pathToFileURL(realpathSync(resolveAgentClientPath("llama.cpp"))).href);
+}
+
+function resolveAgentClientPath(client: string, xdgDataHome = process.env.XDG_DATA_HOME): string {
+  const dataHome = xdgDataHome || resolve(homedir(), ".local", "share");
+  return resolve(dataHome, "agent-clients", client, "index.ts");
 }
 
 async function buildProviderSource(client: LlamaCppClient): Promise<ProviderSource> {
@@ -171,4 +189,11 @@ function modelRequestError(modelID: string, error: unknown): string {
   return `Cannot use llama.cpp model '${modelID}': ${message(error)}`;
 }
 
-export {modelRequestError, PROVIDER_ID, releaseTime, requireServerUrl, toOpenCodeModel};
+export {
+  modelRequestError,
+  PROVIDER_ID,
+  releaseTime,
+  requireServerUrl,
+  resolveAgentClientPath,
+  toOpenCodeModel,
+};

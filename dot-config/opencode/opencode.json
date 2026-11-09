@@ -2,13 +2,13 @@
   "$schema": "https://opencode.ai/config.json",
   "plugins": [
     {
-      "package": "file:{env:HOME}/.config/opencode/plugins/llama-cpp",
+      "package": "./plugins/llama-cpp",
       "options": {
         "serverUrl": "http://127.0.0.1:12741"
       }
     },
     {
-      "package": "file:{env:HOME}/.config/opencode/plugins/searxng",
+      "package": "./plugins/searxng",
       "options": {
         "serverUrl": "http://searxng.localhost"
       }

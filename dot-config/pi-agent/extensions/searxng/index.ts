@@ -1,15 +1,26 @@
 import {Type} from "@earendil-works/pi-ai";
 import type {ExtensionAPI} from "@earendil-works/pi-coding-agent";
 import {realpathSync} from "node:fs";
-import {dirname, resolve} from "node:path";
-import {fileURLToPath, pathToFileURL} from "node:url";
-import type {
-  SearXNGClient,
-  SearXNGResult,
-} from "../../../../dot-local/share/agent-clients/searxng/index";
+import {homedir} from "node:os";
+import {resolve} from "node:path";
+import {pathToFileURL} from "node:url";
 
 interface SearXNGSettings {
   serverUrl?: unknown;
+}
+
+interface SearXNGResult {
+  url: string;
+  title?: string;
+  content?: string;
+}
+
+interface SearXNGClient {
+  search(query: string, signal?: AbortSignal): Promise<SearXNGResult[]>;
+}
+
+interface SearXNGModule {
+  SearXNGClient: new (options: {serverUrl: string}) => SearXNGClient;
 }
 
 export default function (pi: ExtensionAPI) {
@@ -48,13 +59,13 @@ async function initialize(pi: ExtensionAPI): Promise<SearXNGClient> {
   return new SearXNGClient({serverUrl});
 }
 
-async function loadClient(): Promise<typeof import("../../../../dot-local/share/agent-clients/searxng/index")> {
-  const extensionDirectory = dirname(realpathSync(fileURLToPath(import.meta.url)));
-  const clientPath = resolve(
-    extensionDirectory,
-    "../../../../dot-local/share/agent-clients/searxng/index.ts",
-  );
-  return import(pathToFileURL(clientPath).href);
+async function loadClient(): Promise<SearXNGModule> {
+  return import(pathToFileURL(realpathSync(resolveAgentClientPath("searxng"))).href);
+}
+
+function resolveAgentClientPath(client: string, xdgDataHome = process.env.XDG_DATA_HOME): string {
+  const dataHome = xdgDataHome || resolve(homedir(), ".local", "share");
+  return resolve(dataHome, "agent-clients", client, "index.ts");
 }
 
 function formatResults(results: readonly SearXNGResult[]): string {
@@ -66,4 +77,4 @@ function formatResults(results: readonly SearXNGResult[]): string {
   ].filter(Boolean).join("\n")).join("\n\n");
 }
 
-export {formatResults, readSettings};
+export {formatResults, readSettings, resolveAgentClientPath};
